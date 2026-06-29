@@ -1,0 +1,14 @@
+import { Router } from "express";
+import { asyncHandler } from "../../common/middleware/async-handler.js";
+import { validate } from "../../common/middleware/validate.js";
+import { bookingController } from "./booking.controller.js";
+import {availabilityQuerySchema, bookingIdSchema, createAdminBookingSchema, createPublicBookingSchema, listBookingsQuerySchema, updateBookingSchema,} from "./booking.validation.js";
+export const publicBookingRouter = Router();
+export const adminBookingRouter = Router();
+publicBookingRouter.get("/availability", validate({ query: availabilityQuerySchema }), asyncHandler(bookingController.availability),);
+publicBookingRouter.post("/", validate({ body: createPublicBookingSchema }), asyncHandler(bookingController.createPublic),);
+publicBookingRouter.get("/:id/confirmation", validate({ params: bookingIdSchema }), asyncHandler(bookingController.confirmation),);
+adminBookingRouter.get("/",validate({ query: listBookingsQuerySchema }), asyncHandler(bookingController.list),);
+adminBookingRouter.post("/", validate({ body: createAdminBookingSchema }), asyncHandler(bookingController.createAdmin),);
+adminBookingRouter.patch("/:id", validate({ params: bookingIdSchema, body: updateBookingSchema }), asyncHandler(bookingController.update),);
+adminBookingRouter.delete("/:id", validate({ params: bookingIdSchema }), asyncHandler(bookingController.remove),);

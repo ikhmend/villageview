@@ -1,0 +1,142 @@
+.adminPage {
+  --admin-ink: #1c211b;
+  --admin-forest: #26382d;
+  --admin-paper: #f7f6f1;
+  --admin-line: #dcded7;
+  --admin-muted: #727870;
+  --admin-pending: #c78c35;
+  min-height: 100vh;
+  background: var(--admin-paper);
+  color: var(--admin-ink);
+  font: 14px/1.5 "DM Sans", Arial, sans-serif;
+}
+
+.adminPage button,
+.adminPage input,
+.adminPage select,
+.adminPage textarea { font: inherit; }
+.adminPage button, .adminPage select { cursor: pointer; }
+.adminPage a { color: inherit; text-decoration: none; }
+
+.adminHeader {
+  height: 76px;
+  padding: 0 clamp(20px, 4vw, 64px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--admin-line);
+  background: rgba(247, 246, 241, .94);
+}
+
+.adminBrand { display: flex; align-items: center; gap: 10px; font: 500 20px "Newsreader", Georgia, serif; }
+.adminBrand small { margin-left: 4px; padding: 3px 7px; border-radius: 20px; background: var(--admin-forest); color: white; font: 600 9px "DM Sans"; letter-spacing: .1em; text-transform: uppercase; }
+.adminBrandMark { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--admin-ink); border-radius: 50%; font-style: italic; }
+.siteLink { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+
+.adminMain { width: min(1380px, calc(100% - 48px)); margin: auto; padding: 64px 0 90px; }
+.pageHeading { margin-bottom: 40px; display: flex; align-items: end; justify-content: space-between; gap: 30px; }
+.adminEyebrow, .panelKicker { margin: 0 0 10px; color: var(--admin-muted); font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+.pageHeading h1 { margin: 0; font: 400 clamp(48px, 5vw, 72px)/1 "Newsreader", Georgia, serif; letter-spacing: -.04em; }
+.pageHeading > div > p:last-child { max-width: 600px; margin: 16px 0 0; color: var(--admin-muted); }
+.adminPrimaryButton { min-width: 174px; padding: 15px 18px; display: flex; justify-content: space-between; border: 1px solid var(--admin-forest); background: var(--admin-forest); color: white; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+
+.statsGrid { margin-bottom: 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.statCard { min-height: 148px; padding: 23px 25px; display: grid; grid-template-columns: 1fr auto; align-items: start; border: 1px solid var(--admin-line); background: white; }
+.statCard > span { color: var(--admin-muted); font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+.statCard strong { grid-row: span 2; font: 400 50px/.9 "Newsreader", Georgia, serif; }
+.statCard small { align-self: end; color: #949990; }
+
+.adminPanel { margin-bottom: 24px; border: 1px solid var(--admin-line); background: white; }
+.panelHeader { padding: 24px 26px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--admin-line); }
+.panelHeader h2, .dialogHeader h2 { margin: 0; font: 400 29px/1 "Newsreader", Georgia, serif; letter-spacing: -.02em; }
+.calendarControls { display: flex; gap: 7px; }
+.calendarControls button { min-width: 39px; height: 39px; padding: 0 13px; border: 1px solid var(--admin-line); background: white; color: var(--admin-ink); font-size: 11px; }
+.calendarLegend { padding: 14px 26px; display: flex; justify-content: flex-end; gap: 20px; border-bottom: 1px solid var(--admin-line); color: var(--admin-muted); font-size: 10px; }
+.calendarLegend span { display: flex; align-items: center; gap: 7px; }
+.calendarLegend i { width: 7px; height: 7px; border-radius: 50%; }
+.confirmedDot { background: var(--admin-forest); }
+.pendingDot { background: var(--admin-pending); }
+.weekdays, .calendarGrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.weekdays { border-bottom: 1px solid var(--admin-line); }
+.weekdays span { padding: 11px; color: var(--admin-muted); font-size: 9px; font-weight: 600; text-align: center; text-transform: uppercase; }
+.calendarDay { position: relative; min-height: 104px; padding: 12px; border: 0; border-right: 1px solid var(--admin-line); border-bottom: 1px solid var(--admin-line); background: white; color: var(--admin-ink); text-align: left; }
+.calendarDay:nth-child(7n) { border-right: 0; }
+.calendarDay.isOutside { background: #fafaf8; color: #b2b6b0; }
+.calendarDay:disabled { cursor: default; }
+.calendarDay.isToday .dayNumber { width: 27px; height: 27px; display: grid; place-items: center; border-radius: 50%; background: var(--admin-ink); color: white; }
+.dayNumber { display: block; font-size: 12px; font-weight: 600; }
+.dayBookings { margin-top: 12px; display: flex; flex-direction: column; gap: 5px; }
+.dayBooking { padding: 4px 6px; overflow: hidden; border-left: 3px solid var(--admin-forest); background: #edf1ed; font-size: 9px; line-height: 1.2; text-overflow: ellipsis; white-space: nowrap; }
+.dayBooking.pending { border-left-color: var(--admin-pending); background: #fbf2e4; }
+
+.bookingsHeader { align-items: end; }
+.filters { display: flex; gap: 10px; }
+.filters input, .filters select { height: 40px; padding: 0 12px; border: 1px solid var(--admin-line); border-radius: 0; outline: none; background: white; color: var(--admin-ink); font-size: 12px; }
+.filters input { width: 230px; }
+.filters input:focus, .filters select:focus { border-color: var(--admin-forest); }
+.tableWrap { overflow-x: auto; }
+.adminPage table { width: 100%; border-collapse: collapse; }
+.adminPage th, .adminPage td { padding: 17px 20px; border-bottom: 1px solid var(--admin-line); text-align: left; vertical-align: middle; }
+.adminPage th { color: var(--admin-muted); font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.adminPage td { font-size: 12px; }
+.adminPage td strong { display: block; font-size: 13px; }
+.adminPage td small { display: block; color: var(--admin-muted); }
+.statusBadge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 20px; background: #edf1ed; color: var(--admin-forest); font-size: 9px; font-weight: 600; text-transform: uppercase; }
+.statusBadge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.statusBadge.pending { background: #fbf2e4; color: #9a681d; }
+.statusBadge.cancelled { background: #f2efee; color: #817a76; }
+.editButton { padding: 7px 12px; border: 1px solid var(--admin-line); background: white; font-size: 10px; font-weight: 600; }
+.emptyState { padding: 70px 20px; color: var(--admin-muted); text-align: center; }
+.emptyState strong { color: var(--admin-ink); font: 400 27px "Newsreader", Georgia, serif; }
+.emptyState p { margin: 7px 0 0; }
+
+.adminModal { position: fixed; inset: 0; z-index: 20; padding: 20px; display: grid; place-items: center; overflow-y: auto; background: rgba(17, 23, 18, .62); backdrop-filter: blur(3px); }
+.editorDialog { width: min(650px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; background: white; box-shadow: 0 28px 80px rgba(16,22,17,.3); }
+.editorDialog form { padding: 28px; }
+.dialogHeader { margin-bottom: 26px; display: flex; justify-content: space-between; }
+.iconButton { width: 36px; height: 36px; border: 1px solid var(--admin-line); background: white; font-size: 22px; }
+.editorGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 17px; }
+.editorField { display: flex; flex-direction: column; gap: 7px; }
+.editorField > span { color: var(--admin-muted); font-size: 9px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.editorField input, .editorField select, .editorField textarea { width: 100%; padding: 11px 12px; border: 1px solid var(--admin-line); border-radius: 0; outline: none; background: white; color: var(--admin-ink); }
+.editorField input, .editorField select { height: 45px; }
+.editorField textarea { resize: vertical; }
+.editorField input:focus, .editorField select:focus, .editorField textarea:focus { border-color: var(--admin-forest); }
+.fullWidth { grid-column: 1 / -1; }
+.editorError { min-height: 21px; margin: 15px 0 0; color: #a74438; font-size: 11px; }
+.dialogActions { padding-top: 18px; display: flex; justify-content: space-between; border-top: 1px solid var(--admin-line); }
+.dialogActions > div { display: flex; gap: 9px; }
+.dialogActions button { min-width: 96px; padding: 11px 14px; }
+.secondaryButton, .deleteButton { border: 1px solid var(--admin-line); background: white; color: var(--admin-ink); }
+.deleteButton { border-color: #e4cbc7; color: #a74438; }
+.saveButton { border: 1px solid var(--admin-forest); background: var(--admin-forest); color: white; }
+.adminToast { position: fixed; right: 24px; bottom: 24px; z-index: 30; padding: 13px 17px; background: var(--admin-ink); color: white; font-size: 12px; opacity: 0; transform: translateY(12px); pointer-events: none; transition: .25s ease; }
+.adminToast.isVisible { opacity: 1; transform: none; }
+
+@media (max-width: 800px) {
+  .adminMain { width: min(100% - 28px, 1380px); padding-top: 42px; }
+  .pageHeading { align-items: flex-start; flex-direction: column; }
+  .statsGrid { grid-template-columns: 1fr; }
+  .statCard { min-height: 120px; }
+  .bookingsHeader { align-items: flex-start; flex-direction: column; }
+  .filters { width: 100%; flex-direction: column; }
+  .filters input, .filters select { width: 100%; }
+  .calendarDay { min-height: 72px; padding: 8px; }
+  .dayBooking { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background: var(--admin-forest); color: transparent; }
+  .dayBooking.pending { background: var(--admin-pending); }
+  .adminPage th, .adminPage td { padding: 13px 14px; }
+}
+
+@media (max-width: 560px) {
+  .adminHeader { padding: 0 16px; }
+  .adminBrand small { display: none; }
+  .siteLink { font-size: 9px; }
+  .calendarHeader { align-items: flex-start; flex-direction: column; }
+  .calendarLegend { justify-content: flex-start; }
+  .calendarDay { min-height: 62px; }
+  .editorGrid { grid-template-columns: 1fr; }
+  .fullWidth { grid-column: auto; }
+  .dialogActions { gap: 12px; flex-direction: column-reverse; }
+  .dialogActions > div, .dialogActions button { width: 100%; }
+  .editorDialog form { padding: 22px; }
+}

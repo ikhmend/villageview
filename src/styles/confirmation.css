@@ -1,0 +1,54 @@
+.confirmationPage {
+  --confirm-ink: #1c211b;
+  --confirm-forest: #26382d;
+  --confirm-moss: #9aa995;
+  --confirm-paper: #f8f7f2;
+  min-height: 100vh;
+  background: var(--confirm-paper);
+  color: var(--confirm-ink);
+  font-family: "DM Sans", Arial, sans-serif;
+}
+
+.confirmationPage a { color: inherit; text-decoration: none; }
+.confirmationHeader { height: 82px; padding: 0 clamp(24px, 5vw, 76px); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(28,33,27,.18); }
+.confirmationBrand { display: inline-flex; align-items: center; gap: 11px; font: 500 21px "Newsreader", Georgia, serif; }
+.confirmationBrandMark { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--confirm-ink); border-radius: 50%; font-style: italic; }
+.confirmationHomeLink { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; }
+.confirmationMain { width: min(920px, calc(100% - 40px)); margin: 70px auto; }
+.confirmationCard, .missingBooking { padding: clamp(35px, 7vw, 76px); background: var(--confirm-forest); color: white; }
+.successIcon { width: 52px; height: 52px; margin-bottom: 34px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.55); border-radius: 50%; font-size: 22px; }
+.confirmationEyebrow { margin: 0 0 16px; color: rgba(255,255,255,.62); font-size: 10px; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; }
+.confirmationPage h1 { margin: 0; color: white; font: 400 clamp(52px, 7vw, 82px)/.98 "Newsreader", Georgia, serif; letter-spacing: -.04em; }
+.confirmationPage h1 em { color: var(--confirm-moss); font-weight: 400; }
+.confirmationMessage, .missingBooking > p:not(.confirmationEyebrow) { max-width: 650px; margin: 28px 0 0; color: rgba(255,255,255,.76); font-size: 16px; line-height: 1.7; }
+.bookingStatus { margin-top: 45px; padding: 17px 20px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border: 1px solid rgba(255,255,255,.18); }
+.bookingStatus span, .bookingDetails dt { color: rgba(255,255,255,.54); font-size: 9px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; }
+.bookingStatus strong { font-size: 12px; font-weight: 500; }
+.bookingDetails { margin: 24px 0 0; display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); border-top: 1px solid rgba(255,255,255,.18); border-left: 1px solid rgba(255,255,255,.18); }
+.bookingDetails > div { min-height: 96px; padding: 20px; border-right: 1px solid rgba(255,255,255,.18); border-bottom: 1px solid rgba(255,255,255,.18); }
+.bookingDetails dd { margin: 9px 0 0; font: 400 21px "Newsreader", Georgia, serif; }
+.bookingDetails .referenceDetail { grid-column: 1 / -1; }
+.referenceDetail dd { overflow-wrap: anywhere; font-family: "DM Sans"; font-size: 12px; letter-spacing: .04em; }
+.confirmationActions { margin-top: 28px; display: flex; justify-content: space-between; gap: 16px; }
+.confirmationActions a, .confirmationActions button, .missingBooking a { min-height: 48px; padding: 0 17px; display: inline-flex; align-items: center; justify-content: space-between; gap: 30px; border: 1px solid white; background: white; color: var(--confirm-ink); cursor: pointer; font: 600 10px "DM Sans"; letter-spacing: .06em; text-transform: uppercase; }
+.confirmationActions button { background: transparent; color: white; }
+.missingBooking a { margin-top: 34px; }
+
+@media (max-width: 620px) {
+  .confirmationMain { width: 100%; margin: 0; }
+  .confirmationCard, .missingBooking { min-height: calc(100vh - 82px); }
+  .bookingStatus { align-items: flex-start; flex-direction: column; }
+  .bookingDetails { grid-template-columns: 1fr; }
+  .bookingDetails .referenceDetail { grid-column: auto; }
+  .confirmationActions { flex-direction: column; }
+  .confirmationActions a, .confirmationActions button { width: 100%; }
+}
+
+@media print {
+  .confirmationHeader, .confirmationActions { display: none; }
+  .confirmationPage, .confirmationCard { background: white; color: black; }
+  .confirmationMain { width: 100%; margin: 0; }
+  .confirmationPage h1 { color: black; }
+  .confirmationMessage, .bookingStatus span, .bookingDetails dt { color: #555; }
+  .bookingStatus, .bookingDetails, .bookingDetails > div { border-color: #bbb; }
+}

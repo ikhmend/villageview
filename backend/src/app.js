@@ -1,0 +1,12 @@
+import express from "express";
+import { errorHandler, notFoundHandler } from "./common/middleware/error-handler.js";
+import {applyParameterPollutionProtection, applySecurityMiddleware,} from "./common/middleware/security.js";
+import { apiRouter } from "./routes/index.js";
+export const app = express();
+applySecurityMiddleware(app);
+app.use(express.json({ limit: "32kb" }));
+app.use(express.urlencoded({ extended: false, limit: "32kb" }));
+applyParameterPollutionProtection(app);
+app.use("/api/v1", apiRouter);
+app.use(notFoundHandler);
+app.use(errorHandler);

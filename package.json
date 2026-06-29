@@ -1,0 +1,22 @@
+{
+  "name": "village-view",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:backend": "npm --prefix backend run dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "db:migrate": "npm --prefix backend run db:migrate"
+  },
+  "dependencies": {
+    "react": "latest",
+    "react-dom": "latest",
+    "react-router-dom": "latest"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "latest",
+    "vite": "latest"
+  }
+}
