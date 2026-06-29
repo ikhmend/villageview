@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This repository contains a Vite React frontend and an Express/PostgreSQL API. Frontend routes live in `src/pages/`, reusable UI in `src/components/`, and API/date helpers in `src/lib/`. The layered modular monolith is under `backend/src/`: common middleware, configuration, migrations, and the booking module’s repository, CRUD service, business service, controller, validation, and routes. Local photography remains in `images/`.
+This repository contains a Vite React frontend and an Express/PostgreSQL API. Frontend routes live in `src/pages/`, reusable UI in `src/components/`, and API/date helpers in `src/lib/`. The layered modular monolith is under `backend/src/`: common middleware, configuration, migrations, and modular booking/auth repositories, CRUD services, business services, controllers, validation, and routes. Local photography remains in `images/`.
 
 ## Build, Test, and Development Commands
 
@@ -14,7 +14,7 @@ npm --prefix backend install
 npm run dev
 ```
 
-Run `npm run dev:backend` separately for the API. Use `npm run db:migrate` after configuring `backend/.env`, `npm run build` for a frontend production bundle, and `npm run preview` to inspect it. Main routes are `/`, `/admin`, and `/confirmation/:bookingId`.
+Run `npm run dev:backend` separately for the API. After configuring `backend/.env`, run `npm run db:migrate` and `npm run db:seed`. Use `npm run build` for a frontend production bundle. Main routes are `/`, `/admin/login`, `/admin`, and `/confirmation/:bookingId`.
 
 ## Coding Style & Naming Conventions
 

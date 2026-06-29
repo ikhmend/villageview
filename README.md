@@ -18,6 +18,7 @@ cp backend/.env.example backend/.env
 npm install
 npm --prefix backend install
 npm run db:migrate
+npm run db:seed
 ```
 
 Run the API and frontend in separate terminals:
@@ -29,12 +30,15 @@ npm run dev
 
 Open `http://localhost:5173`, with the admin portal at `http://localhost:5173/admin`. The API defaults to `http://localhost:4000/api/v1`.
 
+The seed command creates or updates the initial administrator using `ADMIN_EMAIL` and `ADMIN_PASSWORD` from `backend/.env`. The password must contain at least 12 characters. Admin JWTs are stored in browser session storage and expire according to `JWT_EXPIRES_IN`.
+
 ## Backend structure
 
 - `backend/src/common/`: response helpers, errors, async handling, validation, and security middleware.
 - `backend/src/config/`: environment and Sequelize configuration.
 - `backend/src/database/migrations/`: PostgreSQL schema migrations.
 - `backend/src/modules/bookings/`: model, repository, CRUD service, business service, controller, validation, and routes.
+- `backend/src/modules/auth/`: admin model and layered authentication services, controllers, validation, and routes.
 - `backend/src/routes/`: API route composition.
 
 Every successful controller response uses `sendSuccess()` and returns HTTP 200. Errors flow through the centralized error middleware. Confirmed bookings are protected against date overlap both in the business layer and by a PostgreSQL exclusion constraint.
@@ -44,6 +48,8 @@ Every successful controller response uses `sendSuccess()` and returns HTTP 200. 
 | Method | Path | Purpose |
 | --- | --- | --- |
 | GET | `/api/v1/health` | Health check |
+| POST | `/api/v1/auth/login` | Authenticate an administrator |
+| GET | `/api/v1/auth/me` | Restore the authenticated admin session |
 | GET | `/api/v1/bookings/availability` | Confirmed dates within a range |
 | POST | `/api/v1/bookings` | Submit a pending booking |
 | GET | `/api/v1/bookings/:id/confirmation` | Retrieve confirmation details |
@@ -52,4 +58,4 @@ Every successful controller response uses `sendSuccess()` and returns HTTP 200. 
 | PATCH | `/api/v1/admin/bookings/:id` | Edit dates, details, or status |
 | DELETE | `/api/v1/admin/bookings/:id` | Delete a booking |
 
-Admin authentication is not implemented yet. Protect `/api/v1/admin/*` before exposing the API publicly.
+All `/api/v1/admin/*` endpoints require a valid admin bearer token. Login attempts are rate-limited and passwords are stored only as bcrypt hashes.

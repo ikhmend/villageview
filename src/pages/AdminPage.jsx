@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { bookingApi } from "../lib/api";
+import { useAuth } from "../context/AuthContext";
 import { addDays, countNights, datesOverlap, formatDate, toISODate } from "../lib/dates";
 import "../styles/admin.css";
 
@@ -137,6 +138,7 @@ function Calendar({ visibleMonth, bookings, onSelect }) {
 }
 
 export default function AdminPage() {
+  const { admin, logout } = useAuth();
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
@@ -229,7 +231,7 @@ export default function AdminPage() {
     <div className="adminPage">
       <header className="adminHeader">
         <Link className="adminBrand" to="/admin"><span className="adminBrandMark">V</span><span>Village View</span><small>Admin</small></Link>
-        <Link className="siteLink" to="/">Сайт руу очих <span aria-hidden="true">↗</span></Link>
+        <div className="adminHeaderActions"><span>{admin?.name}</span><Link className="siteLink" to="/">Сайт руу очих <span aria-hidden="true">↗</span></Link><button type="button" onClick={logout}>Гарах</button></div>
       </header>
       <main className="adminMain">
         <section className="pageHeading">

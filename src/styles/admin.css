@@ -32,6 +32,22 @@
 .adminBrand small { margin-left: 4px; padding: 3px 7px; border-radius: 20px; background: var(--admin-forest); color: white; font: 600 9px "DM Sans"; letter-spacing: .1em; text-transform: uppercase; }
 .adminBrandMark { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--admin-ink); border-radius: 50%; font-style: italic; }
 .siteLink { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+.adminHeaderActions { display: flex; align-items: center; gap: 22px; }
+.adminHeaderActions > span { color: var(--admin-muted); font-size: 11px; }
+.adminHeaderActions > button { padding: 8px 12px; border: 1px solid var(--admin-line); background: transparent; color: var(--admin-ink); font-size: 10px; font-weight: 600; text-transform: uppercase; }
+
+.loginMain { min-height: calc(100vh - 76px); padding: 50px 20px; display: grid; place-items: center; }
+.loginCard { width: min(500px, 100%); padding: clamp(32px, 6vw, 58px); border: 1px solid var(--admin-line); background: white; }
+.loginCard h1 { margin: 0; font: 400 clamp(52px, 7vw, 72px)/.95 "Newsreader", Georgia, serif; letter-spacing: -.04em; }
+.loginCard > p:not(.adminEyebrow) { margin: 20px 0 32px; color: var(--admin-muted); }
+.loginCard form { display: grid; gap: 17px; }
+.loginField { display: flex; flex-direction: column; gap: 7px; }
+.loginField span { color: var(--admin-muted); font-size: 9px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; }
+.loginField input { width: 100%; height: 48px; padding: 0 13px; border: 1px solid var(--admin-line); border-radius: 0; outline: none; background: white; color: var(--admin-ink); }
+.loginField input:focus { border-color: var(--admin-forest); }
+.loginError { min-height: 21px; margin: 0; color: #a74438; font-size: 11px; }
+.loginButton { height: 50px; padding: 0 17px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--admin-forest); background: var(--admin-forest); color: white; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+.loginButton:disabled { cursor: wait; opacity: .65; }
 
 .adminMain { width: min(1380px, calc(100% - 48px)); margin: auto; padding: 64px 0 90px; }
 .pageHeading { margin-bottom: 40px; display: flex; align-items: end; justify-content: space-between; gap: 30px; }
@@ -131,6 +147,8 @@
   .adminHeader { padding: 0 16px; }
   .adminBrand small { display: none; }
   .siteLink { font-size: 9px; }
+  .adminHeaderActions > span { display: none; }
+  .adminHeaderActions { gap: 10px; }
   .calendarHeader { align-items: flex-start; flex-direction: column; }
   .calendarLegend { justify-content: flex-start; }
   .calendarDay { min-height: 62px; }

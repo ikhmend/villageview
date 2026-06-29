@@ -8,9 +8,11 @@
     "dev:backend": "npm --prefix backend run dev",
     "build": "vite build",
     "preview": "vite preview",
-    "db:migrate": "npm --prefix backend run db:migrate"
+    "db:migrate": "npm --prefix backend run db:migrate",
+    "db:seed": "npm --prefix backend run db:seed"
   },
   "dependencies": {
+    "nodemailer": "^9.0.1",
     "react": "latest",
     "react-dom": "latest",
     "react-router-dom": "latest"

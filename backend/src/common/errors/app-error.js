@@ -21,3 +21,15 @@ export class ConflictError extends AppError {
     super(message, { statusCode: 409, code: "CONFLICT", details });
   }
 }
+
+export class UnauthorizedError extends AppError {
+  constructor(message = "Authentication required") {
+    super(message, { statusCode: 401, code: "UNAUTHORIZED" });
+  }
+}
+
+export class ForbiddenError extends AppError {
+  constructor(message = "Access denied") {
+    super(message, { statusCode: 403, code: "FORBIDDEN" });
+  }
+}
