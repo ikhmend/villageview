@@ -14,7 +14,7 @@ async function start() {
   }
 }
 async function shutdown(signal) {
-  console.log(`${signal} received. Shutting down gracefully.`);
+  console.log(`${signal} received. Shutting down.`);
   if (server) await new Promise((resolve) => server.close(resolve));
   await sequelize.close();
   process.exit(0);
