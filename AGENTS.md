@@ -14,7 +14,7 @@ npm --prefix backend install
 npm run dev
 ```
 
-Run `npm run dev:backend` separately for the API. After configuring `backend/.env`, run `npm run db:migrate` and `npm run db:seed`. Use `npm run build` for a frontend production bundle. Main routes are `/`, `/admin/login`, `/admin`, and `/confirmation/:bookingId`.
+Run `npm run dev:backend` separately for the API. After configuring database, JWT, admin seed, and SMTP values in `backend/.env`, run `npm run db:migrate` and `npm run db:seed`. Use `npm run build` for a frontend production bundle. Admin routes include `/admin/login`, `/admin/forgot-password`, `/admin/reset-password`, and `/admin`.
 
 ## Coding Style & Naming Conventions
 

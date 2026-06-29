@@ -48,6 +48,11 @@
 .loginError { min-height: 21px; margin: 0; color: #a74438; font-size: 11px; }
 .loginButton { height: 50px; padding: 0 17px; display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--admin-forest); background: var(--admin-forest); color: white; font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
 .loginButton:disabled { cursor: wait; opacity: .65; }
+.loginMeta { display: flex; justify-content: flex-end; }
+.loginMeta a, .authSuccess a { color: var(--admin-forest); font-size: 10px; font-weight: 600; letter-spacing: .04em; text-decoration: underline; text-underline-offset: 4px; text-transform: uppercase; }
+.authSuccess { margin-top: 30px; padding: 20px; border: 1px solid #bfcbbd; background: #f0f4ef; color: var(--admin-ink); }
+.authSuccess p { margin: 0 0 18px; color: var(--admin-muted); }
+.authSuccess.isError { border-color: #e4cbc7; background: #faf1ef; }
 
 .adminMain { width: min(1380px, calc(100% - 48px)); margin: auto; padding: 64px 0 90px; }
 .pageHeading { margin-bottom: 40px; display: flex; align-items: end; justify-content: space-between; gap: 30px; }

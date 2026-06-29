@@ -21,6 +21,7 @@ AdminUser.init(
     name: { type: DataTypes.STRING(120), allowNull: false, defaultValue: "Village View Admin" },
     isActive: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true, field: "is_active" },
     lastLoginAt: { type: DataTypes.DATE, allowNull: true, field: "last_login_at" },
+    tokenVersion: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0, field: "token_version" },
   },
   {
     sequelize,

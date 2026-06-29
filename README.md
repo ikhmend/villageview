@@ -32,6 +32,20 @@ Open `http://localhost:5173`, with the admin portal at `http://localhost:5173/ad
 
 The seed command creates or updates the initial administrator using `ADMIN_EMAIL` and `ADMIN_PASSWORD` from `backend/.env`. The password must contain at least 12 characters. Admin JWTs are stored in browser session storage and expire according to `JWT_EXPIRES_IN`.
 
+Password reset email requires these `backend/.env` values:
+
+```env
+PASSWORD_RESET_TTL_MINUTES=30
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-smtp-user
+SMTP_PASS=your-smtp-password
+EMAIL_FROM=Village View <no-reply@villageview.mn>
+```
+
+Forgot-password requests always return the same response to prevent account enumeration. Reset links contain a one-time random token; only its SHA-256 hash is stored in PostgreSQL. Successful resets invalidate all previous admin JWTs.
+
 ## Backend structure
 
 - `backend/src/common/`: response helpers, errors, async handling, validation, and security middleware.
@@ -50,6 +64,8 @@ Every successful controller response uses `sendSuccess()` and returns HTTP 200. 
 | GET | `/api/v1/health` | Health check |
 | POST | `/api/v1/auth/login` | Authenticate an administrator |
 | GET | `/api/v1/auth/me` | Restore the authenticated admin session |
+| POST | `/api/v1/auth/forgot-password` | Email a one-time reset link |
+| POST | `/api/v1/auth/reset-password` | Validate the token and replace the password |
 | GET | `/api/v1/bookings/availability` | Confirmed dates within a range |
 | POST | `/api/v1/bookings` | Submit a pending booking |
 | GET | `/api/v1/bookings/:id/confirmation` | Retrieve confirmation details |

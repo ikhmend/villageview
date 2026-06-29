@@ -38,6 +38,21 @@ export const authApi = {
   async me() {
     return (await request("/auth/me")).data;
   },
+  async forgotPassword(email) {
+    return request("/auth/forgot-password", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  },
+  async resetPassword(token, password) {
+    const response = await request("/auth/reset-password", {
+      method: "POST",
+      body: JSON.stringify({ token, password }),
+    });
+    authToken.clear();
+    window.dispatchEvent(new Event("admin-auth-expired"));
+    return response.data;
+  },
 };
 
 export const bookingApi = {

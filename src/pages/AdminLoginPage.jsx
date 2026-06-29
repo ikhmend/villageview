@@ -33,7 +33,7 @@ export default function AdminLoginPage() {
   return (
     <div className="adminPage adminLoginPage">
       <header className="adminHeader">
-        <Link className="adminBrand" to="/"><span className="adminBrandMark">V</span><span>Village View</span><small>Admin</small></Link>
+        <Link className="adminBrand" to="/"><span>Village View</span><small>Admin</small></Link>
         <Link className="siteLink" to="/">Сайт руу очих <span aria-hidden="true">↗</span></Link>
       </header>
       <main className="loginMain">
@@ -44,6 +44,7 @@ export default function AdminLoginPage() {
           <form onSubmit={handleSubmit}>
             <label className="loginField"><span>И-мэйл</span><input name="email" type="email" autoComplete="username" required autoFocus /></label>
             <label className="loginField"><span>Нууц үг</span><input name="password" type="password" autoComplete="current-password" minLength="8" required /></label>
+            <div className="loginMeta"><Link to="/admin/forgot-password">Нууц үгээ мартсан?</Link></div>
             <p className="loginError" role="alert">{error}</p>
             <button className="loginButton" type="submit" disabled={submitting}>{submitting ? "Нэвтэрч байна..." : "Нэвтрэх"}<span>→</span></button>
           </form>

@@ -230,7 +230,7 @@ export default function AdminPage() {
   return (
     <div className="adminPage">
       <header className="adminHeader">
-        <Link className="adminBrand" to="/admin"><span className="adminBrandMark">V</span><span>Village View</span><small>Admin</small></Link>
+        <Link className="adminBrand" to="/admin"><span>Village View</span><small>Admin</small></Link>
         <div className="adminHeaderActions"><span>{admin?.name}</span><Link className="siteLink" to="/">Сайт руу очих <span aria-hidden="true">↗</span></Link><button type="button" onClick={logout}>Гарах</button></div>
       </header>
       <main className="adminMain">
