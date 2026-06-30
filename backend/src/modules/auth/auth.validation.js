@@ -22,7 +22,7 @@ export const resetPasswordSchema = z.object({
 
 export const inviteAdminSchema = z.object({
   name: z.string().trim().min(2).max(120),
-  email: z.string().trim().email().max(254),
+  email: z.string().trim().toLowerCase().email().max(254),
 });
 
 export const adminIdSchema = z.object({

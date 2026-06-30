@@ -1,26 +1,22 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { inviteAdminSchema } from "../src/modules/auth/auth.validation.js";
-
 test("inviteAdminSchema normalizes a valid invitation", () => {
   const result = inviteAdminSchema.safeParse({
     name: "  Бат Эрдэнэ  ",
     email: "  admin@example.com  ",
   });
-
   assert.equal(result.success, true);
   assert.deepEqual(result.data, {
     name: "Бат Эрдэнэ",
     email: "admin@example.com",
   });
 });
-
 test("inviteAdminSchema rejects an invalid invitation", () => {
   const result = inviteAdminSchema.safeParse({
     name: "A",
     email: "not-an-email",
   });
-
   assert.equal(result.success, false);
   assert.deepEqual(
     result.error.issues.map((issue) => issue.path[0]).sort(),
@@ -98,4 +94,57 @@ test("inviteAdminSchema хэт богино нэрийг reject-лэнэ.", ()=>
   });
   assert.equal(result.success, false);
   assert.ok(result.error.issues.some((issue)=> issue.path[0]==="name",),);
+});
+test("inviteAdminSchema кирилл үсэг зөвшөөрөх", ()=> {
+  const result = inviteAdminSchema.safeParse({
+    name:"Жаргалын Энхмэнд",
+    email:"enhmend.7878@gmail.com",
+  });
+  assert.equal(result.success, true);
+  assert.equal(result.data.name, "Жаргалын Энхмэнд");
+});
+test("inviteAdminSchema rejects malformed emails", () => {
+  const invalidEmails = [
+    "admin",
+    "admin@",
+    "@example.com",
+    "admin example@example.com",
+    "admin@example",
+    "",
+  ];
+  for (const email of invalidEmails) {
+    const result = inviteAdminSchema.safeParse({
+      name: "Бат Эрдэнэ",
+      email,
+    });
+    assert.equal(result.success, false, `Expected "${email}" to be rejected`,);
+  }
+});
+test("inviteAdminSchema trims the email", () => {
+  const result = inviteAdminSchema.safeParse({
+    name: "Бат Эрдэнэ",
+    email: "   admin@example.com   ",
+  });
+  assert.equal(result.success, true);
+  assert.equal(result.data.email, "admin@example.com");
+});
+test("inviteAdminSchema converts email to lowercase", () => {
+  const result = inviteAdminSchema.safeParse({
+    name: "Бат Чулуун",
+    email: "ADMIN@EXAMPLE.COM",
+  });
+  assert.equal(result.success, true);
+  assert.equal(result.data.email, "admin@example.com");
+});
+test("inviteAdminSchema removes unknown fields", () => {
+  const result = inviteAdminSchema.safeParse({
+    name: "Бат Эрдэнэ",
+    email: "admin@example.com",
+    role: "super_admin",
+  });
+  assert.equal(result.success, true);
+  assert.deepEqual(result.data, {
+    name: "Бат Эрдэнэ",
+    email: "admin@example.com",
+  });
 });
