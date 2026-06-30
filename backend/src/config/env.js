@@ -21,9 +21,7 @@ const envSchema = z.object({
   SMTP_PASS: z.string().min(1, "SMTP_PASS is required"),
   EMAIL_FROM: z.string().min(1, "EMAIL_FROM is required"),
 });
-
 const parsed = envSchema.safeParse(process.env);
-
 if (!parsed.success) {
   console.error("Invalid environment configuration", parsed.error.flatten().fieldErrors);
   process.exit(1);

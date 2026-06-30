@@ -20,7 +20,6 @@ export default function App() {
     </Routes>
   );
 }
-
 function ProtectedAdminRoute({ children }) {
   const { admin, loading } = useAuth();
   const location = useLocation();

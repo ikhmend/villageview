@@ -2,12 +2,10 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { authApi } from "../lib/api";
 import "../styles/admin.css";
-
 export default function ForgotPasswordPage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
   async function handleSubmit(event) {
     event.preventDefault();
     const email = String(new FormData(event.currentTarget).get("email") || "").trim();
@@ -24,7 +22,6 @@ export default function ForgotPasswordPage() {
       setLoading(false);
     }
   }
-
   return (
     <div className="adminPage adminLoginPage">
       <AuthHeader />
@@ -34,7 +31,7 @@ export default function ForgotPasswordPage() {
           <h1>И-мэйлээ<br />шалгана уу.</h1>
           {submitted ? (
             <div className="authSuccess">
-              <p>Хэрэв энэ и-мэйлээр бүртгэл байгаа бол нууц үг шинэчлэх холбоос илгээлээ.</p>
+              <p>Хэрэв энэ и-мэйлээр бүртгэл байгаа бол нууц үг шинэчлэх холбоос илгээгдэнэ.</p>
               <Link to="/admin/login">Нэвтрэх хуудас руу буцах →</Link>
             </div>
           ) : (

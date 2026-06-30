@@ -12,7 +12,6 @@ module.exports = {
       WHERE "invitation_accepted_at" IS NULL;
     `);
   },
-
   async down(queryInterface) {
     await queryInterface.removeColumn("admin_users", "invitation_accepted_at");
   },

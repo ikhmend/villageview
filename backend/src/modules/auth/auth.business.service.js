@@ -57,7 +57,6 @@ async function sendInvitationEmail(admin, rawToken, inviter) {
     });
   }
 }
-
 export const authBusinessService = {
   async login({ email, password }) {
     const admin = await authCrudService.findByEmailWithPassword(email.toLowerCase());
@@ -72,7 +71,6 @@ export const authBusinessService = {
       ...tokenOptions,
       subject: admin.id,
     });
-
     return {
       token,
       expiresIn: env.JWT_EXPIRES_IN,
@@ -98,19 +96,16 @@ export const authBusinessService = {
     }
     return admin;
   },
-
   async requestPasswordReset({ email }) {
     const normalizedEmail = email.toLowerCase();
     const reset = await sequelize.transaction(async (transaction) => {
       const admin = await authCrudService.findByEmail(normalizedEmail, transaction);
       if (!admin?.isActive) return null;
-
       const { rawToken, tokenHash, expiresAt } = createOneTimeToken();
       await authCrudService.invalidateResetTokens(admin.id, transaction);
       await authCrudService.createResetToken({ adminUserId: admin.id, tokenHash, expiresAt }, transaction);
       return { admin, rawToken };
     });
-
     if (reset) {
       const resetUrl = clientUrl(`/admin/reset-password?token=${encodeURIComponent(reset.rawToken)}`);
       try {
@@ -125,10 +120,8 @@ export const authBusinessService = {
         await invalidateTokenAfterEmailFailure(reset.admin.id);
       }
     }
-
     return { accepted: true };
   },
-
   resetPassword({ token, password }) {
     return sequelize.transaction(async (transaction) => {
       const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
@@ -139,14 +132,12 @@ export const authBusinessService = {
           code: "INVALID_RESET_TOKEN",
         });
       }
-
       const admin = await authCrudService.findById(resetToken.adminUserId, transaction);
       const isPendingInvitation = admin && !admin.invitationAcceptedAt;
       if (!admin || (!admin.isActive && !isPendingInvitation)) throw new AppError("Reset link is invalid or expired", {
         statusCode: 400,
         code: "INVALID_RESET_TOKEN",
       });
-
       const passwordHash = await bcrypt.hash(password, 12);
       await authCrudService.update(admin, {
         passwordHash,
@@ -157,12 +148,10 @@ export const authBusinessService = {
       return { reset: true, invitationAccepted: isPendingInvitation };
     });
   },
-
   async listAdmins() {
     const admins = await authCrudService.listAdmins();
     return admins.map((admin) => admin.toSafeJSON());
   },
-
   async inviteAdmin({ name, email }, inviter) {
     const normalizedEmail = email.toLowerCase();
     const passwordHash = await bcrypt.hash(crypto.randomBytes(32).toString("hex"), 12);
@@ -181,27 +170,22 @@ export const authBusinessService = {
       await authCrudService.createResetToken({ adminUserId: admin.id, tokenHash, expiresAt }, transaction);
       return { admin, rawToken };
     });
-
     await sendInvitationEmail(invitation.admin, invitation.rawToken, inviter);
     return invitation.admin.toSafeJSON();
   },
-
   async resendAdminInvitation(adminUserId, inviter) {
     const invitation = await sequelize.transaction(async (transaction) => {
       const admin = await authCrudService.findById(adminUserId, transaction);
       if (!admin) throw new NotFoundError("Administrator not found");
       if (admin.invitationAcceptedAt) throw new ConflictError("This invitation has already been accepted");
-
       const { rawToken, tokenHash, expiresAt } = createOneTimeToken();
       await authCrudService.invalidateResetTokens(admin.id, transaction);
       await authCrudService.createResetToken({ adminUserId: admin.id, tokenHash, expiresAt }, transaction);
       return { admin, rawToken };
     });
-
     await sendInvitationEmail(invitation.admin, invitation.rawToken, inviter);
     return invitation.admin.toSafeJSON();
   },
-
   async setAdminActive(adminUserId, isActive, currentAdmin) {
     return sequelize.transaction(async (transaction) => {
       const admins = await authCrudService.listAdmins(transaction, true);
@@ -225,7 +209,6 @@ export const authBusinessService = {
       return admin.toSafeJSON();
     });
   },
-
   async cancelAdminInvitation(adminUserId) {
     return sequelize.transaction(async (transaction) => {
       const admin = await authCrudService.findById(adminUserId, transaction);
