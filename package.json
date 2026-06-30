@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "test": "npm --prefix backend test",
     "dev": "vite",
     "dev:backend": "npm --prefix backend run dev",
     "build": "vite build",

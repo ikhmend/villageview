@@ -4,6 +4,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "test": "node --test",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "db:migrate": "sequelize-cli db:migrate --config src/config/sequelize-cli.cjs --migrations-path src/database/migrations",
