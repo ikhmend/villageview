@@ -10,7 +10,7 @@ export default function ForgotPasswordPage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    const email = new FormData(event.currentTarget).get("email");
+    const email = String(new FormData(event.currentTarget).get("email") || "").trim();
     setLoading(true);
     setError("");
     try {
@@ -41,8 +41,8 @@ export default function ForgotPasswordPage() {
             <>
               <p>Админ бүртгэлтэй и-мэйлээ оруулна уу. Нэг удаагийн холбоос илгээнэ.</p>
               <form onSubmit={handleSubmit}>
-                <label className="loginField"><span>И-мэйл</span><input name="email" type="email" autoComplete="email" required autoFocus /></label>
-                <p className="loginError" role="alert">{error}</p>
+                <label className="loginField"><span>И-мэйл</span><input name="email" type="email" autoComplete="email" maxLength="254" aria-invalid={Boolean(error)} required autoFocus /></label>
+                <p className="loginError" role="alert" aria-live="polite">{error}</p>
                 <button className="loginButton" type="submit" disabled={loading}>{loading ? "Илгээж байна..." : "Холбоос илгээх"}<span>→</span></button>
                 <div className="loginMeta"><Link to="/admin/login">Нэвтрэх хуудас руу буцах</Link></div>
               </form>

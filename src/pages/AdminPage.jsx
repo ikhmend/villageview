@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { bookingApi } from "../lib/api";
+import { adminUserApi, bookingApi } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { addDays, countNights, datesOverlap, formatDate, toISODate } from "../lib/dates";
 import "../styles/admin.css";
@@ -95,6 +95,104 @@ function BookingEditor({ booking, bookings, onClose, onSave, onDelete }) {
   );
 }
 
+function InviteAdminEditor({ onClose, onInvited, onChanged }) {
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    setLoading(true);
+    setError("");
+    try {
+      await adminUserApi.invite({
+        name: String(form.get("name") || "").trim(),
+        email: String(form.get("email") || "").trim(),
+      });
+      await onInvited();
+    } catch (requestError) {
+      if (requestError.code === "CONFLICT") setError("Энэ и-мэйлтэй админ бүртгэлтэй байна.");
+      else if (requestError.code === "INVITATION_EMAIL_FAILED") {
+        await onChanged();
+        setError("Урилгын и-мэйл илгээж чадсангүй. Цонхыг хаагаад админы жагсаалтаас дахин илгээнэ үү.");
+      } else setError("Админ урьж чадсангүй. Дахин оролдоно уу.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="adminModal" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <section className="editorDialog compactDialog" role="dialog" aria-modal="true" aria-labelledby="inviteAdminTitle">
+        <form onSubmit={handleSubmit}>
+          <div className="dialogHeader">
+            <div><p className="panelKicker">Админ эрх</p><h2 id="inviteAdminTitle">Шинэ админ урих</h2></div>
+            <button className="iconButton" type="button" onClick={onClose} aria-label="Хаах">×</button>
+          </div>
+          <div className="editorGrid">
+            <label className="editorField fullWidth"><span>Нэр</span><input name="name" minLength="2" maxLength="120" required autoFocus /></label>
+            <label className="editorField fullWidth"><span>И-мэйл</span><input name="email" type="email" autoComplete="email" maxLength="254" required /></label>
+          </div>
+          <p className="editorError" role="alert" aria-live="polite">{error}</p>
+          <div className="dialogActions inviteActions"><span /><div><button className="secondaryButton" type="button" onClick={onClose}>Болих</button><button className="saveButton" type="submit" disabled={loading}>{loading ? "Илгээж байна..." : "Урилга илгээх"}</button></div></div>
+        </form>
+      </section>
+    </div>
+  );
+}
+
+function AdminUsersPanel({ admins, currentAdmin, loading, error, onRetry, onInvite, onChanged, notify }) {
+  const [busyId, setBusyId] = useState("");
+
+  async function run(admin, action, confirmation, successMessage) {
+    if (confirmation && !window.confirm(confirmation)) return;
+    setBusyId(admin.id);
+    try {
+      await action();
+      await onChanged();
+      notify(successMessage);
+    } catch (requestError) {
+      if (requestError.code === "FORBIDDEN") notify("Өөрийн админ эрхийг идэвхгүй болгох боломжгүй.");
+      else if (requestError.code === "CONFLICT") notify("Сүүлийн идэвхтэй админы эрхийг идэвхгүй болгох боломжгүй.");
+      else if (requestError.code === "INVITATION_EMAIL_FAILED") notify("Урилгын и-мэйл илгээж чадсангүй.");
+      else notify("Үйлдлийг гүйцэтгэж чадсангүй.");
+    } finally {
+      setBusyId("");
+    }
+  }
+
+  return (
+    <section className="adminPanel adminUsersPanel">
+      <div className="panelHeader">
+        <div><p className="panelKicker">Хандалтын удирдлага</p><h2>Админууд</h2></div>
+        <button className="editButton" type="button" onClick={onInvite}>Админ урих ＋</button>
+      </div>
+      <div className="tableWrap">
+        {error ? <div className="emptyState"><strong>Админы жагсаалт уншигдсангүй</strong><p>{error}</p><button className="editButton" type="button" onClick={onRetry}>Дахин оролдох</button></div> : loading ? <div className="emptyState"><strong>Уншиж байна...</strong></div> : (
+          <table><thead><tr><th>Админ</th><th>Төлөв</th><th>Сүүлд нэвтэрсэн</th><th /></tr></thead>
+            <tbody>{admins.map((item) => {
+              const pending = !item.invitationAcceptedAt;
+              const status = pending ? "Урилга хүлээгдэж буй" : item.isActive ? "Идэвхтэй" : "Идэвхгүй";
+              const statusClass = pending ? "pending" : item.isActive ? "" : "cancelled";
+              const busy = busyId === item.id;
+              return (
+                <tr key={item.id}>
+                  <td><strong>{item.name}</strong><small>{item.email}{item.id === currentAdmin?.id ? " · Та" : ""}</small></td>
+                  <td><span className={`statusBadge ${statusClass}`}>{status}</span></td>
+                  <td>{item.lastLoginAt ? new Intl.DateTimeFormat("mn-MN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.lastLoginAt)) : "—"}</td>
+                  <td><div className="adminUserActions">
+                    {pending ? <><button className="editButton" type="button" disabled={busy} onClick={() => run(item, () => adminUserApi.resendInvitation(item.id), "Урилгыг дахин илгээх үү?", "Урилгыг дахин илгээлээ.")}>Дахин илгээх</button><button className="deleteButton" type="button" disabled={busy} onClick={() => run(item, () => adminUserApi.cancelInvitation(item.id), "Энэ урилгыг цуцлах уу?", "Урилгыг цуцаллаа.")}>Цуцлах</button></> : item.id !== currentAdmin?.id && <button className={item.isActive ? "deleteButton" : "editButton"} type="button" disabled={busy} onClick={() => run(item, () => adminUserApi.setActive(item.id, !item.isActive), item.isActive ? `${item.name}-ийн эрхийг идэвхгүй болгох уу?` : "", item.isActive ? "Админ эрхийг идэвхгүй болголоо." : "Админ эрхийг идэвхжүүллээ.")}>{item.isActive ? "Идэвхгүй болгох" : "Идэвхжүүлэх"}</button>}
+                  </div></td>
+                </tr>
+              );
+            })}</tbody>
+          </table>
+        )}
+      </div>
+    </section>
+  );
+}
+
 function Calendar({ visibleMonth, bookings, onSelect }) {
   const year = visibleMonth.getFullYear();
   const month = visibleMonth.getMonth();
@@ -142,11 +240,15 @@ export default function AdminPage() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
+  const [admins, setAdmins] = useState([]);
+  const [adminsLoading, setAdminsLoading] = useState(true);
+  const [adminsError, setAdminsError] = useState("");
   const [visibleMonth, setVisibleMonth] = useState(() => {
     const now = new Date();
     return new Date(now.getFullYear(), now.getMonth(), 1);
   });
   const [editing, setEditing] = useState(null);
+  const [invitingAdmin, setInvitingAdmin] = useState(false);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [toast, setToast] = useState("");
@@ -163,9 +265,21 @@ export default function AdminPage() {
     }
   }, []);
 
+  const loadAdmins = useCallback(async () => {
+    setAdminsError("");
+    try {
+      setAdmins(await adminUserApi.list());
+    } catch (requestError) {
+      setAdminsError(requestError.message);
+    } finally {
+      setAdminsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     loadBookings();
-  }, [loadBookings]);
+    loadAdmins();
+  }, [loadAdmins, loadBookings]);
 
   const stats = useMemo(() => {
     const today = toISODate(new Date());
@@ -280,8 +394,19 @@ export default function AdminPage() {
             ) : <div className="emptyState"><strong>Захиалга олдсонгүй</strong><p>Шүүлтүүрээ өөрчлөх эсвэл шинэ захиалга нэмнэ үү.</p></div>}
           </div>
         </section>
+        <AdminUsersPanel
+          admins={admins}
+          currentAdmin={admin}
+          loading={adminsLoading}
+          error={adminsError}
+          onRetry={loadAdmins}
+          onInvite={() => setInvitingAdmin(true)}
+          onChanged={loadAdmins}
+          notify={notify}
+        />
       </main>
       {editing && <BookingEditor key={editing.id || "new"} booking={editing} bookings={bookings} onClose={() => setEditing(null)} onSave={saveBooking} onDelete={deleteBooking} />}
+      {invitingAdmin && <InviteAdminEditor onClose={() => setInvitingAdmin(false)} onChanged={loadAdmins} onInvited={async () => { await loadAdmins(); setInvitingAdmin(false); notify("Админ урилгыг илгээлээ."); }} />}
       <div className={`adminToast${toast ? " isVisible" : ""}`} role="status">{toast}</div>
     </div>
   );

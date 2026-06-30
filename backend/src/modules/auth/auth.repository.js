@@ -12,6 +12,19 @@ export const authRepository = {
   findById(id, transaction) {
     return AdminUser.findByPk(id, { transaction });
   },
+  listAdmins(transaction, lock = false) {
+    return AdminUser.findAll({
+      order: [["createdAt", "ASC"]],
+      transaction,
+      ...(lock ? { lock: transaction.LOCK.UPDATE } : {}),
+    });
+  },
+  createAdmin(payload, transaction) {
+    return AdminUser.create(payload, { transaction });
+  },
+  deleteAdmin(instance, transaction) {
+    return instance.destroy({ transaction });
+  },
   update(instance, payload, transaction) {
     return instance.update(payload, { transaction });
   },

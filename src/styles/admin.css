@@ -113,6 +113,7 @@
 
 .adminModal { position: fixed; inset: 0; z-index: 20; padding: 20px; display: grid; place-items: center; overflow-y: auto; background: rgba(17, 23, 18, .62); backdrop-filter: blur(3px); }
 .editorDialog { width: min(650px, 100%); max-height: calc(100vh - 40px); overflow-y: auto; background: white; box-shadow: 0 28px 80px rgba(16,22,17,.3); }
+.compactDialog { width: min(520px, 100%); }
 .editorDialog form { padding: 28px; }
 .dialogHeader { margin-bottom: 26px; display: flex; justify-content: space-between; }
 .iconButton { width: 36px; height: 36px; border: 1px solid var(--admin-line); background: white; font-size: 22px; }
@@ -131,6 +132,10 @@
 .secondaryButton, .deleteButton { border: 1px solid var(--admin-line); background: white; color: var(--admin-ink); }
 .deleteButton { border-color: #e4cbc7; color: #a74438; }
 .saveButton { border: 1px solid var(--admin-forest); background: var(--admin-forest); color: white; }
+.saveButton:disabled, .editButton:disabled, .deleteButton:disabled { cursor: wait; opacity: .6; }
+.adminUserActions { display: flex; justify-content: flex-end; gap: 8px; }
+.adminUserActions button { white-space: nowrap; }
+.adminUsersPanel td:last-child, .adminUsersPanel th:last-child { text-align: right; }
 .adminToast { position: fixed; right: 24px; bottom: 24px; z-index: 30; padding: 13px 17px; background: var(--admin-ink); color: white; font-size: 12px; opacity: 0; transform: translateY(12px); pointer-events: none; transition: .25s ease; }
 .adminToast.isVisible { opacity: 1; transform: none; }
 
@@ -146,6 +151,7 @@
   .dayBooking { width: 8px; height: 8px; padding: 0; border: 0; border-radius: 50%; background: var(--admin-forest); color: transparent; }
   .dayBooking.pending { background: var(--admin-pending); }
   .adminPage th, .adminPage td { padding: 13px 14px; }
+  .adminUserActions { align-items: stretch; flex-direction: column; }
 }
 
 @media (max-width: 560px) {

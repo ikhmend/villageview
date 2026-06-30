@@ -17,4 +17,28 @@ export const authController = {
     const data = await authBusinessService.resetPassword(req.validated.body);
     return sendSuccess(res, data, "Password reset successful");
   },
+  async listAdmins(_req, res) {
+    const data = await authBusinessService.listAdmins();
+    return sendSuccess(res, data, "Administrators retrieved");
+  },
+  async inviteAdmin(req, res) {
+    const data = await authBusinessService.inviteAdmin(req.validated.body, req.admin);
+    return sendSuccess(res, data, "Administrator invitation sent");
+  },
+  async resendAdminInvitation(req, res) {
+    const data = await authBusinessService.resendAdminInvitation(req.validated.params.id, req.admin);
+    return sendSuccess(res, data, "Administrator invitation resent");
+  },
+  async updateAdmin(req, res) {
+    const data = await authBusinessService.setAdminActive(
+      req.validated.params.id,
+      req.validated.body.isActive,
+      req.admin,
+    );
+    return sendSuccess(res, data, "Administrator updated");
+  },
+  async cancelAdminInvitation(req, res) {
+    const data = await authBusinessService.cancelAdminInvitation(req.validated.params.id);
+    return sendSuccess(res, data, "Administrator invitation cancelled");
+  },
 };

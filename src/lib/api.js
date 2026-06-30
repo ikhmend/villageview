@@ -7,12 +7,12 @@ export const authToken = {
   clear: () => sessionStorage.removeItem(TOKEN_KEY),
 };
 
-async function request(path, options = {}) {
+async function request(path, { authenticated = true, ...options } = {}) {
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
-      ...(authToken.get() ? { Authorization: `Bearer ${authToken.get()}` } : {}),
+      ...(authenticated && authToken.get() ? { Authorization: `Bearer ${authToken.get()}` } : {}),
       ...options.headers,
     },
   });
@@ -22,7 +22,7 @@ async function request(path, options = {}) {
     error.code = payload?.error?.code;
     error.status = response.status;
     error.details = payload?.error?.details;
-    if (response.status === 401) {
+    if (authenticated && response.status === 401) {
       authToken.clear();
       window.dispatchEvent(new Event("admin-auth-expired"));
     }
@@ -33,7 +33,11 @@ async function request(path, options = {}) {
 
 export const authApi = {
   async login(credentials) {
-    return (await request("/auth/login", { method: "POST", body: JSON.stringify(credentials) })).data;
+    return (await request("/auth/login", {
+      method: "POST",
+      authenticated: false,
+      body: JSON.stringify(credentials),
+    })).data;
   },
   async me() {
     return (await request("/auth/me")).data;
@@ -41,12 +45,14 @@ export const authApi = {
   async forgotPassword(email) {
     return request("/auth/forgot-password", {
       method: "POST",
+      authenticated: false,
       body: JSON.stringify({ email }),
     });
   },
   async resetPassword(token, password) {
     const response = await request("/auth/reset-password", {
       method: "POST",
+      authenticated: false,
       body: JSON.stringify({ token, password }),
     });
     authToken.clear();
@@ -78,5 +84,29 @@ export const bookingApi = {
   },
   async remove(id) {
     return (await request(`/admin/bookings/${id}`, { method: "DELETE" })).data;
+  },
+};
+
+export const adminUserApi = {
+  async list() {
+    return (await request("/admin/users")).data;
+  },
+  async invite(payload) {
+    return (await request("/admin/users/invitations", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    })).data;
+  },
+  async resendInvitation(id) {
+    return (await request(`/admin/users/${id}/invitations`, { method: "POST" })).data;
+  },
+  async setActive(id, isActive) {
+    return (await request(`/admin/users/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ isActive }),
+    })).data;
+  },
+  async cancelInvitation(id) {
+    return (await request(`/admin/users/${id}/invitation`, { method: "DELETE" })).data;
   },
 };

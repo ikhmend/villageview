@@ -46,6 +46,8 @@ EMAIL_FROM=Village View <no-reply@villageview.mn>
 
 Forgot-password requests always return the same response to prevent account enumeration. Reset links contain a one-time random token; only its SHA-256 hash is stored in PostgreSQL. Successful resets invalidate all previous admin JWTs.
 
+Authenticated administrators can invite additional administrators from the admin dashboard. An invited account remains inactive until its owner follows the emailed one-time link and creates a password. Invitations can be resent or cancelled. Accepted accounts can be disabled and re-enabled; the API prevents self-deactivation and prevents disabling the last active administrator.
+
 ## Backend structure
 
 - `backend/src/common/`: response helpers, errors, async handling, validation, and security middleware.
@@ -66,6 +68,11 @@ Every successful controller response uses `sendSuccess()` and returns HTTP 200. 
 | GET | `/api/v1/auth/me` | Restore the authenticated admin session |
 | POST | `/api/v1/auth/forgot-password` | Email a one-time reset link |
 | POST | `/api/v1/auth/reset-password` | Validate the token and replace the password |
+| GET | `/api/v1/admin/users` | List administrator accounts and invitations |
+| POST | `/api/v1/admin/users/invitations` | Invite a new administrator |
+| POST | `/api/v1/admin/users/:id/invitations` | Resend a pending invitation |
+| PATCH | `/api/v1/admin/users/:id` | Enable or disable an accepted administrator |
+| DELETE | `/api/v1/admin/users/:id/invitation` | Cancel a pending invitation |
 | GET | `/api/v1/bookings/availability` | Confirmed dates within a range |
 | POST | `/api/v1/bookings` | Submit a pending booking |
 | GET | `/api/v1/bookings/:id/confirmation` | Retrieve confirmation details |

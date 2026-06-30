@@ -8,7 +8,9 @@ export class AdminUser extends Model {
       email: this.email,
       name: this.name,
       isActive: this.isActive,
+      invitationAcceptedAt: this.invitationAcceptedAt,
       lastLoginAt: this.lastLoginAt,
+      createdAt: this.createdAt,
     };
   }
 }
@@ -22,6 +24,7 @@ AdminUser.init(
     isActive: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true, field: "is_active" },
     lastLoginAt: { type: DataTypes.DATE, allowNull: true, field: "last_login_at" },
     tokenVersion: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 0, field: "token_version" },
+    invitationAcceptedAt: { type: DataTypes.DATE, allowNull: true, field: "invitation_accepted_at" },
   },
   {
     sequelize,

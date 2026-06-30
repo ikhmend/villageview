@@ -19,3 +19,16 @@ export const resetPasswordSchema = z.object({
     .regex(/\d/, "Password must contain a number")
     .regex(/[^A-Za-z0-9]/, "Password must contain a special character"),
 });
+
+export const inviteAdminSchema = z.object({
+  name: z.string().trim().min(2).max(120),
+  email: z.string().trim().email().max(254),
+});
+
+export const adminIdSchema = z.object({
+  id: z.string().uuid(),
+});
+
+export const updateAdminSchema = z.object({
+  isActive: z.boolean(),
+});

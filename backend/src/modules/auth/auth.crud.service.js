@@ -10,6 +10,15 @@ export const authCrudService = {
   findById(id, transaction) {
     return authRepository.findById(id, transaction);
   },
+  listAdmins(transaction, lock) {
+    return authRepository.listAdmins(transaction, lock);
+  },
+  createAdmin(payload, transaction) {
+    return authRepository.createAdmin(payload, transaction);
+  },
+  deleteAdmin(instance, transaction) {
+    return authRepository.deleteAdmin(instance, transaction);
+  },
   update(instance, payload, transaction) {
     return authRepository.update(instance, payload, transaction);
   },
