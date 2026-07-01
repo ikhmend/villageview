@@ -55,5 +55,4 @@ export function createEmailService(mailTransport) {
     },
   };
 }
-
 export const emailService = createEmailService(transporter);

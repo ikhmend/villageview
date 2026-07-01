@@ -4,7 +4,7 @@ import { adminUserApi, bookingApi } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { addDays, countNights, datesOverlap, formatDate, toISODate } from "../lib/dates";
 import "../styles/admin.css";
-
+import { socket } from "../lib/socket";
 const STATUS_LABELS = {
   pending: "Хүлээгдэж буй",
   confirmed: "Баталгаажсан",
@@ -51,12 +51,12 @@ function BookingEditor({ booking, bookings, onClose, onSave, onDelete }) {
       setError("Буцах өдөр ирэх өдрөөс хойш байх ёстой.");
       return;
     }
-    const conflict = draft.status === "confirmed" && bookings.some(
-      (item) => item.id !== draft.id && item.status === "confirmed" &&
+    const conflict = draft.status !== "cancelled" && bookings.some(
+      (item) => item.id !== draft.id && item.status !== "cancelled" &&
         datesOverlap(draft.checkin, draft.checkout, item.checkin, item.checkout),
     );
     if (conflict) {
-      setError("Энэ хугацаанд өөр баталгаажсан захиалга байна.");
+      setError("Энэ хугацаанд өөр идэвхтэй захиалга байна.");
       return;
     }
     try {
@@ -277,8 +277,19 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
+    function handleBookingCreated(newBooking){
+      setBookings((currentBookings)=>[
+        newBooking, ...currentBookings,
+      ]);
+    }
+    socket.connect();
+    socket.on("booking:created", handleBookingCreated);
     loadBookings();
     loadAdmins();
+    return()=>{
+      socket.off("booking:created", handleBookingCreated);
+      socket.disconnect();
+    }
   }, [loadAdmins, loadBookings]);
 
   const stats = useMemo(() => {

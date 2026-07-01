@@ -29,9 +29,9 @@ export const bookingRepository = {
     await instance.destroy({ transaction });
   },
 
-  findConfirmedOverlap({ checkin, checkout, excludeId }, transaction) {
+  findActiveOverlap({ checkin, checkout, excludeId }, transaction) {
     const where = {
-      status: "confirmed",
+      status: { [Op.in]: ["pending", "confirmed"] },
       checkin: { [Op.lt]: checkout },
       checkout: { [Op.gt]: checkin },
     };
@@ -39,11 +39,11 @@ export const bookingRepository = {
     return Booking.findOne({ where, transaction, lock: transaction?.LOCK?.UPDATE });
   },
 
-  findConfirmedRanges({ start, end }, transaction) {
+  findActiveRanges({ start, end }, transaction) {
     return Booking.findAll({
       attributes: ["id", "checkin", "checkout"],
       where: {
-        status: "confirmed",
+        status: { [Op.in]: ["pending", "confirmed"] },
         checkin: { [Op.lt]: end },
         checkout: { [Op.gt]: start },
       },

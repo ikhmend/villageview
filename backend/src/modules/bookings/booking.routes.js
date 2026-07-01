@@ -6,7 +6,7 @@ import {availabilityQuerySchema, bookingIdSchema, createAdminBookingSchema, crea
 export const publicBookingRouter = Router();
 export const adminBookingRouter = Router();
 publicBookingRouter.get("/availability", validate({ query: availabilityQuerySchema }), asyncHandler(bookingController.availability),);
-publicBookingRouter.post("/", validate({ body: createPublicBookingSchema }), asyncHandler(bookingController.createPublic),);
+publicBookingRouter.post("/", validate({ body: createPublicBookingSchema }), asyncHandler(bookingController.createPublic),); 
 publicBookingRouter.get("/:id/confirmation", validate({ params: bookingIdSchema }), asyncHandler(bookingController.confirmation),);
 adminBookingRouter.get("/",validate({ query: listBookingsQuerySchema }), asyncHandler(bookingController.list),);
 adminBookingRouter.post("/", validate({ body: createAdminBookingSchema }), asyncHandler(bookingController.createAdmin),);

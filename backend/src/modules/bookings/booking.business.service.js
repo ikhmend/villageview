@@ -7,7 +7,7 @@ function addDays(isoDate, days) {
   return date.toISOString().slice(0, 10);
 }
 async function assertDatesAvailable({ checkin, checkout, excludeId }, transaction) {
-  const conflict = await bookingCrudService.findConfirmedOverlap({ checkin, checkout, excludeId },transaction,);
+  const conflict = await bookingCrudService.findActiveOverlap({ checkin, checkout, excludeId },transaction,);
   if (conflict) {
     throw new ConflictError("The selected dates are already booked", {checkin, checkout,});
   }
@@ -35,7 +35,7 @@ async list({ page = 1, limit = 50, ...filters }) {
     return booking;
   },
   async getAvailability({ start, end }) {
-    const ranges = await bookingCrudService.findConfirmedRanges({ start, end });
+    const ranges = await bookingCrudService.findActiveRanges({ start, end });
     const bookedDates = new Set();
     ranges.forEach((range) => {
       let date = range.checkin < start ? start : range.checkin;
@@ -55,7 +55,7 @@ async list({ page = 1, limit = 50, ...filters }) {
   },
   createAdmin(payload) {
     return sequelize.transaction(async (transaction) => {
-      if (payload.status === "confirmed") await assertDatesAvailable(payload, transaction);
+      if (payload.status !== "cancelled") await assertDatesAvailable(payload, transaction);
       return bookingCrudService.create(payload, transaction);
     });
   },
@@ -68,7 +68,7 @@ async list({ page = 1, limit = 50, ...filters }) {
       if (candidate.checkout <= candidate.checkin) {
         throw new ConflictError("Checkout must be after checkin");
       }
-      if (candidate.status === "confirmed") {
+      if (candidate.status !== "cancelled") {
         await assertDatesAvailable({checkin: candidate.checkin, checkout: candidate.checkout, excludeId: booking.id,}, transaction);
       }
       return bookingCrudService.update(booking, payload, transaction);

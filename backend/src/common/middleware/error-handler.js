@@ -17,7 +17,10 @@ export function errorHandler(error, req, res, _next) {
       code: "DATABASE_VALIDATION_ERROR",
       details: error.errors?.map((item) => ({ path: item.path, message: item.message })),
     });
-  } else if (error instanceof DatabaseError && error.parent?.constraint === "bookings_no_confirmed_overlap") {
+  } else if (error instanceof DatabaseError && [
+    "bookings_no_confirmed_overlap",
+    "bookings_no_active_overlap",
+  ].includes(error.parent?.constraint)) {
     normalized = new AppError("The selected dates are already booked", {
       statusCode: 409,
       code: "BOOKING_DATE_CONFLICT",

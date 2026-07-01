@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { once } from "node:events";
 import test from "node:test";
+import { adminIdSchema } from "../src/modules/auth/auth.validation.js";
 process.env.NODE_ENV = "test";
 process.env.DATABASE_URL = "postgres://test:test@localhost:5432/village_view_test";
 process.env.JWT_SECRET = "test-secret-that-is-at-least-32-characters-long";
@@ -17,7 +18,8 @@ const { errorHandler, notFoundHandler } = await import("../src/common/middleware
 const { authenticateAdmin } = await import("../src/common/middleware/authenticate-admin.js");
 const { adminUserRouter } = await import("../src/modules/auth/admin-user.routes.js");
 const { authBusinessService } = await import("../src/modules/auth/auth.business.service.js");
-const {authRouter}= await import("../src/modules/auth/auth.routes.js")
+const {authRouter}= await import("../src/modules/auth/auth.routes.js");
+const {apiRouter} = await import("../src/routes/index.js");
 test("POST /api/v1/admin/users/invitations authenticates and invites an admin", async (t) => {
   const currentAdmin = {
     id: "c9dfbf6b-6663-4cf4-a83a-c85b69799668",
@@ -127,4 +129,188 @@ test("POST /api/v1/auth/login returns an authenticated admin", async (t) => {
   });
   assert.equal(authBusinessService.login.mock.callCount(), 1);
 });
-test("GET	/api/v1/auth/me")
+test("GET /api/v1/auth/me returns the authenticated admin", async (t) => {
+  const safeAdmin = {
+    id: "c9dfbf6b-6663-4cf4-a83a-c85b69799668",
+    name: "Existing Admin",
+    email: "existing.admin@example.com",
+    isActive: true,
+    invitationAcceptedAt: null,
+    lastLoginAt: null,
+    createdAt: "2026-06-30T00:00:00.000Z",
+  };
+  const currentAdmin = {
+    ...safeAdmin,
+    passwordHash: "must-not-be-returned",
+    tokenVersion: 0,
+    toSafeJSON() {
+      return safeAdmin;
+    },
+  };
+  let capturedToken;
+  t.mock.method(authBusinessService, "authenticateToken", async (token) => {
+      capturedToken = token;
+      return currentAdmin;
+    },
+  );
+  const app = express();
+  app.use(express.json());
+  app.use("/api/v1/auth", authRouter);
+  app.use(notFoundHandler);
+  app.use(errorHandler);
+  const server = app.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  t.after(
+    () =>new Promise((resolve, reject) => {server.close((error) => {if (error) reject(error); else resolve();});}),
+  );
+  const { port } = server.address();
+  const response = await fetch(
+    `http://127.0.0.1:${port}/api/v1/auth/me`,
+    {
+      headers: {
+        Authorization: "Bearer valid-admin-token",
+      },
+    },
+  );
+  const body = await response.json();
+  assert.equal(response.status, 200, JSON.stringify(body));
+  assert.equal(capturedToken, "valid-admin-token");
+  assert.deepEqual(body, {
+    success: true,
+    message: "Admin retrieved",
+    data: safeAdmin,
+  });
+  assert.equal(authBusinessService.authenticateToken.mock.callCount(), 1,);
+  assert.equal("passwordHash" in body.data, false);
+  assert.equal("tokenVersion" in body.data, false);
+});
+test("GET /api/v1/admin/users returns admin accounts", async (t) =>{
+  const admin= {
+    id: "c9dfbf6b-6663-4cf4-a83a-c85b69799668",
+    name: "superduper admin",
+    email: "imthebestadminthereeverwas@example.com",
+  }
+  const safeAdmin= {
+    ...admin,
+    isActive:true,
+    invitationAcceptedAt: null,
+    lastLoginAt: null,
+    createdAt: "2026-06-30T00:00:00.000Z",
+  }
+  let tokken;
+  const authenticateTokenMock = t.mock.method(authBusinessService, "authenticateToken", async (token) => {
+      tokken = token;
+      return safeAdmin;
+    },
+  );
+  const listAdminsMock = t.mock.method(authBusinessService, "listAdmins", async () => [safeAdmin],);
+  const app = express();
+  app.use(express.json());
+  app.use("/api/v1", apiRouter);
+  app.use(notFoundHandler);
+  app.use(errorHandler);
+  const server = app.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  t.after(() =>new Promise((resolve, reject) => {server.close((error) => {if (error) reject(error); else resolve();});}),);
+  const { port } = server.address();
+  const response = await fetch(
+    `http://127.0.0.1:${port}/api/v1/admin/users`,
+    {
+      headers: {
+        Authorization: "Bearer valid-admin-token",
+      },
+    },
+  );
+  const body = await response.json();
+  assert.equal(response.status, 200, JSON.stringify(body));
+  assert.equal(tokken, "valid-admin-token");
+  assert.equal(authBusinessService.authenticateToken.mock.callCount(), 1);
+  assert.equal(authBusinessService.listAdmins.mock.callCount(), 1);
+  assert.deepEqual(body, {
+    success: true,
+    message: "Administrators retrieved",
+    data: [safeAdmin],
+  });
+});
+test("POST /api/v1/auth/forgot-password accepts a password reset request", async (t) => {
+  let capturedPayload;
+  t.mock.method(authBusinessService, "requestPasswordReset", async (payload) => {
+    capturedPayload = payload;
+  });
+  const app = express();
+  app.use(express.json());
+  app.use("/api/v1/auth", authRouter);
+  app.use(notFoundHandler);
+  app.use(errorHandler);
+  const server = app.listen(0, "127.0.0.1");
+  await once(server, "listening");
+  t.after(() => new Promise((resolve, reject) => {
+    server.close((error) => error ? reject(error) : resolve());
+  }));
+  const { port } = server.address();
+  const response = await fetch(`http://127.0.0.1:${port}/api/v1/auth/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email: "  Admin@Example.com  " }),
+  });
+  const body = await response.json();
+  assert.equal(response.status, 200, JSON.stringify(body));
+  assert.deepEqual(capturedPayload, { email: "Admin@Example.com" });
+  assert.deepEqual(body, {
+    success: true,
+    message: "If the account exists, a password reset link has been sent",
+    data: null,
+  });
+  assert.equal(authBusinessService.requestPasswordReset.mock.callCount(), 1);
+});
+test("POST /api/v1/auth/reset-password validates a token and replaces the password", async(t)=>{
+  const resetToken="a".repeat(64);
+  const password= "MendEnkh.1212";
+  const serviceResult={
+    reset: true,
+    invitationAccepted: false,
+  }
+  let receivedPayload;
+  const resetPassword= t.mock.method(authBusinessService, "resetPassword", async(payload)=>{
+    receivedPayload=payload;
+    return serviceResult;
+  });
+    const app = express();
+    app.use(express.json());
+    app.use("/api/v1/auth", authRouter);
+    app.use(notFoundHandler);
+    app.use(errorHandler);
+    const server = app.listen(0, "127.0.0.1");
+    await once(server, "listening");
+    t.after(() => new Promise((resolve, reject) => {server.close((error) => error ? reject(error) : resolve());}));
+    const { port } = server.address();
+      const response = await fetch(
+      `http://127.0.0.1:${port}/api/v1/auth/reset-password`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          token: resetToken,
+          password,
+        }),
+      },
+    );
+    const body = await response.json();
+    assert.equal(response.status, 200, JSON.stringify(body));
+    assert.deepEqual(receivedPayload, {token: resetToken, password,});
+    assert.equal(resetPassword.mock.callCount(), 1);
+    assert.deepEqual(body, {
+      success: true,
+      message: "Password reset successful",
+      data: serviceResult,
+    });
+    const serializedResponse = JSON.stringify(body);
+    assert.equal(serializedResponse.includes("passwordHash"), false);
+    assert.equal(serializedResponse.includes(password), false);
+    assert.equal(serializedResponse.includes("tokenHash"), false);
+    assert.equal(serializedResponse.includes("accessToken"), false);
+    assert.equal(serializedResponse.includes("refreshToken"), false);
+    assert.equal(serializedResponse.includes("adminUserId"), false);
+});

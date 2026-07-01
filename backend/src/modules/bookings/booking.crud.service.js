@@ -16,10 +16,10 @@ export const bookingCrudService = {
   remove(instance, transaction) {
     return bookingRepository.remove(instance, transaction);
   },
-  findConfirmedOverlap(dates, transaction) {
-    return bookingRepository.findConfirmedOverlap(dates, transaction);
+  findActiveOverlap(dates, transaction) {
+    return bookingRepository.findActiveOverlap(dates, transaction);
   },
-  findConfirmedRanges(range, transaction) {
-    return bookingRepository.findConfirmedRanges(range, transaction);
+  findActiveRanges(range, transaction) {
+    return bookingRepository.findActiveRanges(range, transaction);
   },
 };
