@@ -192,7 +192,16 @@ function AdminUsersPanel({ admins, currentAdmin, loading, error, onRetry, onInvi
     </section>
   );
 }
-
+function mergeBookingsById(currentBookings, incomingBookings) {
+  const bookingMap = new Map();
+  for (const booking of currentBookings) {
+    bookingMap.set(booking.id, booking);
+  }
+  for (const booking of incomingBookings) {
+    bookingMap.set(booking.id, booking);
+  }
+  return Array.from(bookingMap.values());
+}
 function Calendar({ visibleMonth, bookings, onSelect }) {
   const year = visibleMonth.getFullYear();
   const month = visibleMonth.getMonth();
@@ -278,15 +287,19 @@ export default function AdminPage() {
 
   useEffect(() => {
     function handleBookingCreated(newBooking){
-      setBookings((currentBookings)=>[
-        newBooking, ...currentBookings,
-      ]);
+      setBookings((currentBookings)=>
+        mergeBookingsById(currentBookings, [newBooking]),
+      );
     }
-    socket.connect();
+    function handleSocketConnect() { //socket tasrahad uussen zahialguudiig nuhuh
+      loadBookings();
+    }
+    socket.on("connect", handleSocketConnect);
     socket.on("booking:created", handleBookingCreated);
-    loadBookings();
+    socket.connect();
     loadAdmins();
     return()=>{
+      socket.off("connect", handleSocketConnect)
       socket.off("booking:created", handleBookingCreated);
       socket.disconnect();
     }

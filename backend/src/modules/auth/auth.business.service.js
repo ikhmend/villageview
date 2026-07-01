@@ -145,7 +145,7 @@ export const authBusinessService = {
         ...(isPendingInvitation ? { isActive: true, invitationAcceptedAt: new Date() } : {}),
       }, transaction);
       await authCrudService.invalidateResetTokens(admin.id, transaction);
-      return { reset: true, invitationAccepted: isPendingInvitation };
+      return { reset: true, invitationAccepted: isPendingInvitation, adminId: admin.id };
     });
   },
   async listAdmins() {

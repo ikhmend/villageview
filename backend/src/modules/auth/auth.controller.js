@@ -1,6 +1,6 @@
 import { sendSuccess } from "../../common/helpers/send-success.js";
 import { authBusinessService } from "./auth.business.service.js";
-
+import { disconnectAdminSockets } from "../../common/services/socket.service.js";
 export const authController = {
   async login(req, res) {
     const data = await authBusinessService.login(req.validated.body);
@@ -15,7 +15,13 @@ export const authController = {
   },
   async resetPassword(req, res) {
     const data = await authBusinessService.resetPassword(req.validated.body);
-    return sendSuccess(res, data, "Password reset successful");
+    const io = req.app.get("io");
+    disconnectAdminSockets(io, data.adminId);
+    const responseData = {
+      reset: data.reset,
+      invitationAccepted: data.invitationAccepted,
+    };
+    return sendSuccess(res, responseData, "Password reset successful");
   },
   async listAdmins(_req, res) {
     const data = await authBusinessService.listAdmins();
@@ -30,11 +36,17 @@ export const authController = {
     return sendSuccess(res, data, "Administrator invitation resent");
   },
   async updateAdmin(req, res) {
+    const adminId = req.validated.params.id;
+    const isActive = req.validated.body.isActive;
     const data = await authBusinessService.setAdminActive(
-      req.validated.params.id,
-      req.validated.body.isActive,
+      adminId,
+      isActive,
       req.admin,
     );
+    if (!isActive) {
+      const io = req.app.get("io");
+      disconnectAdminSockets(io, adminId);
+    }
     return sendSuccess(res, data, "Administrator updated");
   },
   async cancelAdminInvitation(req, res) {
