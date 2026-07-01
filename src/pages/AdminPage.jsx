@@ -265,8 +265,7 @@ export default function AdminPage() {
   const loadBookings = useCallback(async () => {
     setLoadError("");
     try {
-      const response = await bookingApi.list({ page: "1", limit: "100" });
-      setBookings(response.data);
+      setBookings(await bookingApi.listAll());
     } catch (requestError) {
       setLoadError(requestError.message);
     } finally {

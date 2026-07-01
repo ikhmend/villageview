@@ -3,7 +3,6 @@ import { AppError } from "../errors/app-error.js";
 export const validate = (schemas) => (req, _res, next) => {
   const validated = {};
   const errors = [];
-
   for (const location of ["params", "query", "body"]) {
     if (!schemas[location]) continue;
     const result = schemas[location].safeParse(req[location]);
@@ -17,7 +16,6 @@ export const validate = (schemas) => (req, _res, next) => {
       validated[location] = result.data;
     }
   }
-
   if (errors.length) {
     return next(new AppError("Input validation failed", {
       statusCode: 400,

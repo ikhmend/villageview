@@ -76,6 +76,19 @@ export const bookingApi = {
     const query = new URLSearchParams(filters);
     return request(`/admin/bookings?${query}`);
   },
+  async listAll(filters = {}) {
+    const bookings = new Map();
+    let page = 1;
+    let pages = 1;
+    do {
+      const query = new URLSearchParams({ ...filters, page: String(page), limit: "100" });
+      const response = await request(`/admin/bookings?${query}`);
+      response.data.forEach((booking) => bookings.set(booking.id, booking));
+      pages = response.meta?.pages || 1;
+      page += 1;
+    } while (page <= pages);
+    return Array.from(bookings.values());
+  },
   async createAdmin(payload) {
     return (await request("/admin/bookings", { method: "POST", body: JSON.stringify(payload) })).data;
   },

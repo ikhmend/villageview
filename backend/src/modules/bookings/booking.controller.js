@@ -8,7 +8,7 @@ export const bookingController = {
   async createPublic(req, res) {
     const booking = await bookingBusinessService.createPublic(req.validated.body);
     const io = req.app.get("io");
-    io.to("admins").emit("booking:created", booking);
+    if (io) io.to("admins").emit("booking:created", booking);
     return sendSuccess(res, booking, "Booking request received");
   },
   async confirmation(req, res) {
