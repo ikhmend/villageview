@@ -29,6 +29,11 @@ export const adminIdSchema = z.object({
   id: z.string().uuid(),
 });
 
+export const listAdminsQuerySchema = z.object({
+  page: z.coerce.number().int().positive().default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+});
+
 export const updateAdminSchema = z.object({
   isActive: z.boolean(),
 });

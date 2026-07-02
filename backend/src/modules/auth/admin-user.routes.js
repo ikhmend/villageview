@@ -3,7 +3,7 @@ import rateLimit from "express-rate-limit";
 import { asyncHandler } from "../../common/middleware/async-handler.js";
 import { validate } from "../../common/middleware/validate.js";
 import { authController } from "./auth.controller.js";
-import {adminIdSchema, inviteAdminSchema, updateAdminSchema,} from "./auth.validation.js";
+import {adminIdSchema, inviteAdminSchema, listAdminsQuerySchema, updateAdminSchema,} from "./auth.validation.js";
 const invitationLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   limit: 20,
@@ -15,7 +15,11 @@ const invitationLimiter = rateLimit({
   },
 });
 export const adminUserRouter = Router();
-adminUserRouter.get("/", asyncHandler(authController.listAdmins));
+adminUserRouter.get(
+  "/",
+  validate({ query: listAdminsQuerySchema }),
+  asyncHandler(authController.listAdmins),
+);
 adminUserRouter.post(
   "/invitations",
   invitationLimiter,

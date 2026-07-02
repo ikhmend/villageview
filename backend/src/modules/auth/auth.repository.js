@@ -19,6 +19,14 @@ export const authRepository = {
       ...(lock ? { lock: transaction.LOCK.UPDATE } : {}),
     });
   },
+  listAdminsPage({ limit, offset }, transaction) {
+    return AdminUser.findAndCountAll({
+      limit,
+      offset,
+      order: [["createdAt", "ASC"], ["id", "ASC"]],
+      transaction,
+    });
+  },
   createAdmin(payload, transaction) {
     return AdminUser.create(payload, { transaction });
   },

@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { inviteAdminSchema } from "../src/modules/auth/auth.validation.js";
+import { inviteAdminSchema, listAdminsQuerySchema } from "../src/modules/auth/auth.validation.js";
+
+test("listAdminsQuerySchema applies defaults and validates page size", () => {
+  assert.deepEqual(listAdminsQuerySchema.parse({}), { page: 1, limit: 10 });
+  assert.deepEqual(listAdminsQuerySchema.parse({ page: "3", limit: "25" }), { page: 3, limit: 25 });
+  assert.equal(listAdminsQuerySchema.safeParse({ page: 0, limit: 101 }).success, false);
+});
 test("inviteAdminSchema normalizes a valid invitation", () => {
   const result = inviteAdminSchema.safeParse({
     name: "  Бат Эрдэнэ  ",

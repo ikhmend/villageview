@@ -7,8 +7,8 @@ const isoDate = z.string()
     return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
   }, "Date is invalid");
 const status = z.enum(["pending", "confirmed", "cancelled"]);
-const MAX_PUBLIC_BOOKING_NIGHTS = 30;
-const MAX_PUBLIC_BOOKING_DAYS_AHEAD = 730;
+const MAX_PUBLIC_BOOKING_NIGHTS = 7;
+const MAX_PUBLIC_BOOKING_DAYS_AHEAD = 365;
 
 function daysBetween(start, end) {
   return Math.round((Date.parse(`${end}T00:00:00.000Z`) - Date.parse(`${start}T00:00:00.000Z`)) / 86400000);
@@ -32,14 +32,14 @@ export const createPublicBookingSchema = z.object(bookingFields).refine(datesInO
   message: "checkin cannot be in the past",
   path: ["checkin"],
 }).refine((data) => daysBetween(data.checkin, data.checkout) <= MAX_PUBLIC_BOOKING_NIGHTS, {
-  message: `a public booking cannot exceed ${MAX_PUBLIC_BOOKING_NIGHTS} nights`,
+  message: "Захиалгын хугацаа 7 шөнөөс хэтрэхгүй байна.",
   path: ["checkout"],
 }).refine((data) => {
   const today = new Date().toISOString().slice(0, 10);
-  return daysBetween(today, data.checkin) <= MAX_PUBLIC_BOOKING_DAYS_AHEAD;
+  return daysBetween(today, data.checkout) <= MAX_PUBLIC_BOOKING_DAYS_AHEAD;
 }, {
-  message: `checkin cannot be more than ${MAX_PUBLIC_BOOKING_DAYS_AHEAD} days in the future`,
-  path: ["checkin"],
+  message: `checkout cannot be more than ${MAX_PUBLIC_BOOKING_DAYS_AHEAD} days in the future`,
+  path: ["checkout"],
 });
 
 export const createAdminBookingSchema = z.object({
@@ -48,6 +48,9 @@ export const createAdminBookingSchema = z.object({
   notes: z.string().trim().max(2000).default(""),
 }).refine(datesInOrder, {
   message: "checkout must be after checkin",
+  path: ["checkout"],
+}).refine((data) => daysBetween(data.checkin, data.checkout) <= MAX_PUBLIC_BOOKING_NIGHTS, {
+  message: "Захиалгын хугацаа 7 шөнөөс хэтрэхгүй байна.",
   path: ["checkout"],
 });
 
@@ -66,6 +69,7 @@ export const bookingIdSchema = z.object({ id: z.string().uuid() });
 
 export const listBookingsQuerySchema = z.object({
   status: status.optional(),
+  search: z.string().trim().max(120).optional(),
   from: isoDate.optional(),
   to: isoDate.optional(),
   page: z.coerce.number().int().positive().default(1),
@@ -77,5 +81,8 @@ export const availabilityQuerySchema = z.object({
   end: isoDate,
 }).refine((data) => data.end > data.start, {
   message: "end must be after start",
+  path: ["end"],
+}).refine((data) => daysBetween(data.start, data.end) <= MAX_PUBLIC_BOOKING_DAYS_AHEAD, {
+  message: `availability range cannot exceed ${MAX_PUBLIC_BOOKING_DAYS_AHEAD} days`,
   path: ["end"],
 });

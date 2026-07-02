@@ -11,6 +11,8 @@ const envSchema = z.object({
   CLIENT_ORIGIN: z.string().default("http://localhost:5173"),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(900000),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(200),
+  BOOKING_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(900000),
+  BOOKING_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(5),
   JWT_SECRET: z.string().min(32, "JWT_SECRET must contain at least 32 characters"),
   JWT_EXPIRES_IN: z.string().default("8h"),
   PASSWORD_RESET_TTL_MINUTES: z.coerce.number().int().min(10).max(120).default(30),

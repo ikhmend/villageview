@@ -203,7 +203,11 @@ test("GET /api/v1/admin/users returns admin accounts", async (t) =>{
       return safeAdmin;
     },
   );
-  const listAdminsMock = t.mock.method(authBusinessService, "listAdmins", async () => [safeAdmin],);
+  const pagination = { page: 1, limit: 10, total: 1, pages: 1 };
+  const listAdminsMock = t.mock.method(authBusinessService, "listAdmins", async () => ({
+    rows: [safeAdmin],
+    meta: pagination,
+  }));
   const app = express();
   app.use(express.json());
   app.use("/api/v1", apiRouter);
@@ -230,6 +234,7 @@ test("GET /api/v1/admin/users returns admin accounts", async (t) =>{
     success: true,
     message: "Administrators retrieved",
     data: [safeAdmin],
+    meta: pagination,
   });
 });
 test("POST /api/v1/auth/forgot-password accepts a password reset request", async (t) => {

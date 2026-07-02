@@ -23,9 +23,9 @@ export const authController = {
     };
     return sendSuccess(res, responseData, "Password reset successful");
   },
-  async listAdmins(_req, res) {
-    const data = await authBusinessService.listAdmins();
-    return sendSuccess(res, data, "Administrators retrieved");
+  async listAdmins(req, res) {
+    const { rows, meta } = await authBusinessService.listAdmins(req.validated.query);
+    return sendSuccess(res, rows, "Administrators retrieved", meta);
   },
   async inviteAdmin(req, res) {
     const data = await authBusinessService.inviteAdmin(req.validated.body, req.admin);

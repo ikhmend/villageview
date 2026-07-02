@@ -1,7 +1,5 @@
 require("dotenv").config();
-
 const useSsl = process.env.DATABASE_SSL === "true";
-
 module.exports = {
   development: {
     use_env_variable: "DATABASE_URL",

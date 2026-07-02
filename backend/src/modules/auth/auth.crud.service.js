@@ -13,6 +13,9 @@ export const authCrudService = {
   listAdmins(transaction, lock) {
     return authRepository.listAdmins(transaction, lock);
   },
+  listAdminsPage(pagination, transaction) {
+    return authRepository.listAdminsPage(pagination, transaction);
+  },
   createAdmin(payload, transaction) {
     return authRepository.createAdmin(payload, transaction);
   },

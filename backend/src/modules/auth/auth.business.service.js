@@ -65,7 +65,6 @@ export const authBusinessService = {
       throw new UnauthorizedError("Email or password is incorrect");
     }
     if (!admin.isActive) throw new ForbiddenError("Admin account is disabled");
-
     await authCrudService.update(admin, { lastLoginAt: new Date() });
     const token = jwt.sign({ role: "admin", tokenVersion: admin.tokenVersion }, env.JWT_SECRET, {
       ...tokenOptions,
@@ -148,9 +147,20 @@ export const authBusinessService = {
       return { reset: true, invitationAccepted: isPendingInvitation, adminId: admin.id };
     });
   },
-  async listAdmins() {
-    const admins = await authCrudService.listAdmins();
-    return admins.map((admin) => admin.toSafeJSON());
+  async listAdmins({ page = 1, limit = 10 }) {
+    const result = await authCrudService.listAdminsPage({
+      limit,
+      offset: (page - 1) * limit,
+    });
+    return {
+      rows: result.rows.map((admin) => admin.toSafeJSON()),
+      meta: {
+        page,
+        limit,
+        total: result.count,
+        pages: Math.ceil(result.count / limit),
+      },
+    };
   },
   async inviteAdmin({ name, email }, inviter) {
     const normalizedEmail = email.toLowerCase();

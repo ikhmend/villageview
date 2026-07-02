@@ -1,5 +1,6 @@
 import { sendSuccess } from "../../common/helpers/send-success.js";
 import { bookingBusinessService } from "./booking.business.service.js";
+import { emitAdminEvent } from "../../common/services/socket.service.js";
 export const bookingController = {
   async availability(req, res) {
     const data = await bookingBusinessService.getAvailability(req.validated.query);
@@ -7,8 +8,7 @@ export const bookingController = {
   },
   async createPublic(req, res) {
     const booking = await bookingBusinessService.createPublic(req.validated.body);
-    const io = req.app.get("io");
-    if (io) io.to("admins").emit("booking:created", booking);
+    emitAdminEvent(req.app.get("io"), "booking:created", booking);
     return sendSuccess(res, booking, "Booking request received");
   },
   async confirmation(req, res) {
@@ -18,6 +18,10 @@ export const bookingController = {
   async list(req, res) {
     const { rows, meta } = await bookingBusinessService.list(req.validated.query);
     return sendSuccess(res, rows, "Bookings retrieved", meta);
+  },
+  async summary(_req, res) {
+    const data = await bookingBusinessService.getAdminSummary();
+    return sendSuccess(res, data, "Booking summary retrieved");
   },
   async createAdmin(req, res) {
     const booking = await bookingBusinessService.createAdmin(req.validated.body);

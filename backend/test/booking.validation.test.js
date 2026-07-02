@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createPublicBookingSchema } from "../src/modules/bookings/booking.validation.js";
+import { createAdminBookingSchema, createPublicBookingSchema, listBookingsQuerySchema } from "../src/modules/bookings/booking.validation.js";
+
+test("booking list pagination accepts a bounded search", () => {
+  assert.deepEqual(listBookingsQuerySchema.parse({ page: "2", limit: "25", search: "  guest  " }), {
+    page: 2,
+    limit: 25,
+    search: "guest",
+  });
+  assert.equal(listBookingsQuerySchema.safeParse({ search: "x".repeat(121) }).success, false);
+});
 
 function isoDateFromToday(days) {
   const date = new Date();
@@ -20,28 +29,38 @@ function booking(overrides = {}) {
   };
 }
 
-test("public bookings accept stays within the supported window", () => {
+test("public bookings accept a seven-night stay within the one-year horizon", () => {
   const result = createPublicBookingSchema.safeParse(booking({
-    checkin: isoDateFromToday(700),
-    checkout: isoDateFromToday(730),
+    checkin: isoDateFromToday(358),
+    checkout: isoDateFromToday(365),
   }));
   assert.equal(result.success, true);
 });
 
-test("public bookings reject stays longer than 30 nights", () => {
+test("public bookings reject stays longer than seven nights", () => {
   const result = createPublicBookingSchema.safeParse(booking({
     checkin: isoDateFromToday(1),
-    checkout: isoDateFromToday(32),
+    checkout: isoDateFromToday(9),
   }));
   assert.equal(result.success, false);
   assert.ok(result.error.issues.some((issue) => issue.path[0] === "checkout"));
 });
 
-test("public bookings reject checkins beyond the two-year calendar", () => {
+test("admin bookings also reject stays longer than seven nights", () => {
+  const result = createAdminBookingSchema.safeParse({
+    ...booking({ checkin: isoDateFromToday(1), checkout: isoDateFromToday(9) }),
+    status: "confirmed",
+    notes: "",
+  });
+  assert.equal(result.success, false);
+  assert.ok(result.error.issues.some((issue) => issue.path[0] === "checkout"));
+});
+
+test("public bookings reject checkout beyond the one-year calendar", () => {
   const result = createPublicBookingSchema.safeParse(booking({
-    checkin: isoDateFromToday(731),
-    checkout: isoDateFromToday(732),
+    checkin: isoDateFromToday(360),
+    checkout: isoDateFromToday(366),
   }));
   assert.equal(result.success, false);
-  assert.ok(result.error.issues.some((issue) => issue.path[0] === "checkin"));
+  assert.ok(result.error.issues.some((issue) => issue.path[0] === "checkout"));
 });

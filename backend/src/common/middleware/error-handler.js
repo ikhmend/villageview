@@ -25,6 +25,11 @@ export function errorHandler(error, req, res, _next) {
       statusCode: 409,
       code: "BOOKING_DATE_CONFLICT",
     });
+  } else if (error instanceof DatabaseError && error.parent?.constraint === "bookings_max_seven_nights") {
+    normalized = new AppError("Захиалгын хугацаа 7 шөнөөс хэтрэхгүй байна.", {
+      statusCode: 400,
+      code: "BOOKING_STAY_TOO_LONG",
+    });
   } else if (!(error instanceof AppError)) {
     normalized = new AppError("Internal server error");
   }

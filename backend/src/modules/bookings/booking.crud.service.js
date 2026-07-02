@@ -7,6 +7,12 @@ export const bookingCrudService = {
   getById(id, transaction) {
     return bookingRepository.findById(id, transaction);
   },
+  count(filters, transaction) {
+    return bookingRepository.count(filters, transaction);
+  },
+  expirePending(expiresBefore, transaction) {
+    return bookingRepository.expirePending(expiresBefore, transaction);
+  },
   create(payload, transaction) {
     return bookingRepository.create(payload, transaction);
   },
@@ -21,5 +27,8 @@ export const bookingCrudService = {
   },
   findActiveRanges(range, transaction) {
     return bookingRepository.findActiveRanges(range, transaction);
+  },
+  findConfirmedRanges(range, transaction) {
+    return bookingRepository.findConfirmedRanges(range, transaction);
   },
 };

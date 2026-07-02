@@ -2,19 +2,50 @@ import { Op } from "sequelize";
 import { Booking } from "./booking.model.js";
 
 export const bookingRepository = {
-  findAll({ status, from, to, limit, offset }, transaction) {
+  findAll({ status, search, from, to, limit, offset }, transaction) {
     const where = {};
     if (status) where.status = status;
+    if (search) {
+      where[Op.or] = ["guestName", "phone", "email"].map((field) => ({
+        [field]: { [Op.iLike]: `%${search}%` },
+      }));
+    }
     if (from || to) {
       where[Op.and] = [];
       if (from) where[Op.and].push({ checkout: { [Op.gt]: from } });
       if (to) where[Op.and].push({ checkin: { [Op.lt]: to } });
     }
-    return Booking.findAndCountAll({ where, limit, offset, transaction });
+    return Booking.findAndCountAll({
+      where,
+      limit,
+      offset,
+      order: [["checkin", "ASC"], ["createdAt", "ASC"], ["id", "ASC"]],
+      transaction,
+    });
   },
 
   findById(id, transaction) {
     return Booking.findByPk(id, { transaction });
+  },
+
+  count({ status, checkoutFrom }, transaction) {
+    const where = {};
+    if (status) where.status = status;
+    if (checkoutFrom) where.checkout = { [Op.gte]: checkoutFrom };
+    return Booking.count({ where, transaction });
+  },
+
+  expirePending(expiresBefore, transaction) {
+    return Booking.update(
+      { status: "cancelled", pendingExpiresAt: null },
+      {
+        where: {
+          status: "pending",
+          pendingExpiresAt: { [Op.lte]: expiresBefore },
+        },
+        transaction,
+      },
+    );
   },
 
   create(payload, transaction) {
@@ -48,6 +79,18 @@ export const bookingRepository = {
         checkout: { [Op.gt]: start },
       },
       order: [["checkin", "ASC"]],
+      transaction,
+    });
+  },
+
+  findConfirmedRanges({ start, end }, transaction) {
+    return Booking.findAll({
+      attributes: ["checkin", "checkout"],
+      where: {
+        status: "confirmed",
+        checkin: { [Op.lt]: end },
+        checkout: { [Op.gt]: start },
+      },
       transaction,
     });
   },

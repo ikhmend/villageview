@@ -17,7 +17,7 @@ export const validate = (schemas) => (req, _res, next) => {
     }
   }
   if (errors.length) {
-    return next(new AppError("Input validation failed", {
+    return next(new AppError(errors[0]?.message || "Input validation failed", {
       statusCode: 400,
       code: "VALIDATION_ERROR",
       details: errors,
